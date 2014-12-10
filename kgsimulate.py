@@ -45,7 +45,7 @@ Next two methods are for our source, f
 
 #fourier coefficients of our source in the d'th component (d = 3 is z, etc)
 def f_k(t,kx,ky,kz,d):
-    if t == 0:
+    #if t == 0:
         if d == 1:
             return -4*1j*pi*kx*np.exp(-0.1*(kx**2+ky**2+kz**2))*0.1
             
@@ -54,8 +54,8 @@ def f_k(t,kx,ky,kz,d):
             
         if d == 3:  
             return -4*1j*pi*kz*np.exp(-0.1*(kx**2+ky**2+kz**2))*0.1
-    else:
-        return 0
+    #else:
+    #    return 0
 
 #matrix of the fourier coefficients in k space
 def f(t,d):
@@ -150,7 +150,7 @@ def main():
     np.save("K_z",K_z)
     
     #save the parameters (makes plotting easier)
-    params = np.array([h, tsteps, dk, Nk, k_max, m])
+    params = np.array([h, tsteps, Nk, k_max, m])
     np.save("params",params)
     
 if __name__ == "__main__":
