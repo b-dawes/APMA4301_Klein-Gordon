@@ -202,7 +202,7 @@ def setup(ic):
 def main():
     
     #setup(0) for IC = 0, setup(1) for given ICs
-    setup(0)
+    setup(1)
     
 if __name__ == "__main__":
     main()
