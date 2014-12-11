@@ -37,7 +37,7 @@ tsteps = 50
 Nk = 51
 
 #mass
-m = 1
+m = 10
 
 '''
 Next two methods are for our source, f
@@ -156,7 +156,7 @@ def setup(ic):
         print 'Running K_y'  
         K_y = spectral(2,0,0)
         print 'Running K_z'  
-        K_z = spectral(3,0,0)   
+        K_z = spectral(3,0,0)
         
         #save our results
         np.save("K_x", K_x)

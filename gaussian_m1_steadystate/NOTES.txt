@@ -1,0 +1,6 @@
+1: The steady state stays "stable" for about 30 more timesteps (t total = 50 to 80)
+2: The reason for this instability is at first unclear, but check E_z.gif
+   a: there are low-intensity waves bouncing around in our "box"
+   b: at around t= 30 (t total = 80) these waves rebound in just the right way to cause a major instability in our solution
+   c: this highlights how the boundary conditions are only "ignorable" for short period time, given enough reflections the solution quickly becomes "chaotic"
+3: making Nk bigger and making the gaussian "tighter" may reduce this problem?

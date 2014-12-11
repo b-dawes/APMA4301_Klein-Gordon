@@ -1,0 +1,7 @@
+1. check m = 0 case
+2. sigmoid or logistic dampening ("turn-on" function)
+3. try to do a convergence plot to a point-charge analytic solution
+4. random other sources
+   a. take in a real function and do a fft on it for the source f_k?
+   b. current (shouldn't need a "turn-on" function)
+   c. dipole (no "turn-on", or non-symmetric charge (still needs "turn-on")

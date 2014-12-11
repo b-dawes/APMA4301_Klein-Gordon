@@ -47,12 +47,18 @@ Next two methods are for our source, f
 def f_k(t,kx,ky,kz,d):
     #if t == 0:
         if d == 1:
+            if t <= 20*h:
+                return -4*1j*pi*kx*np.exp(-0.1*(kx**2+ky**2+kz**2))*0.1*(t/(20*h))
             return -4*1j*pi*kx*np.exp(-0.1*(kx**2+ky**2+kz**2))*0.1
             
         if d == 2:
+            if t <= 20*h:
+                return -4*1j*pi*ky*np.exp(-0.1*(kx**2+ky**2+kz**2))*0.1*(t/(20*h))
             return -4*1j*pi*ky*np.exp(-0.1*(kx**2+ky**2+kz**2))*0.1
             
         if d == 3:  
+            if t <= 20*h:
+                return -4*1j*pi*kz*np.exp(-0.1*(kx**2+ky**2+kz**2))*0.1*(t/(20*h))
             return -4*1j*pi*kz*np.exp(-0.1*(kx**2+ky**2+kz**2))*0.1
     #else:
     #    return 0
@@ -156,7 +162,7 @@ def setup(ic):
         print 'Running K_y'  
         K_y = spectral(2,0,0)
         print 'Running K_z'  
-        K_z = spectral(3,0,0)   
+        K_z = spectral(3,0,0)
         
         #save our results
         np.save("K_x", K_x)

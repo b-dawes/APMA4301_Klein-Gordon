@@ -156,9 +156,7 @@ def setup(ic):
         print 'Running K_y'  
         K_y = spectral(2,0,0)
         print 'Running K_z'  
-        K_z = spectral(3,0,0)
-        
-        print K_x[50][26][:][:]        
+        K_z = spectral(3,0,0)   
         
         #save our results
         np.save("K_x", K_x)
