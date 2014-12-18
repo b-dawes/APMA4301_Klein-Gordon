@@ -33,19 +33,20 @@ def toPosition(K,k_max,dk,x,y,z):
 def plotPlane(X,t,d,val):
     plt.figure()    
     if d=='x':
-        plt.pcolor(X[t][val][:][:])
+        plt.pcolor(X[t,val,:,:])
         plt.xlabel('y')
         plt.ylabel('z')
     if d=='y':
-        plt.pcolor(X[t][:][val][:])
+        plt.pcolor(X[t,:,val,:])
         plt.xlabel('x')
         plt.ylabel('z')
     if d=='z':
-        plt.pcolor(X[t][:][:][val])
+        plt.pcolor(X[t,:,:,val])
         plt.xlabel('x')
         plt.ylabel('y')
     plt.colorbar()
-    plt.title('')
+    plt.title()
+    plt.axis([0,X.shape[1],0,X.shape[1]])
     plt.draw()
     plt.show()
     
@@ -118,6 +119,7 @@ def main():
     '''for i in xrange(X_x.shape[0]-1):
     plotPlane(X_x,X_x.shape[0]-1-i,'z',6)
     '''
+    
     print 'Plotting energy...'
     animatePlane(energy,'z',26,'energy.gif')
     print 'Plotting E_x...'
@@ -126,6 +128,7 @@ def main():
     animatePlane(X_y,'z',26,'E_y.gif')
     print 'Plotting E_z...'    
     animatePlane(X_z,'z',26,'E_z.gif')
+
     
 if __name__ == "__main__":
     main()
