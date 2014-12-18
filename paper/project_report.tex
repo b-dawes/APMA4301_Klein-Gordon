@@ -3,8 +3,10 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{courier}
-%\usepackage{hyperref}
-%\hypersetup{colorlinks=true}
+\usepackage{microtype} %required to fix courier linebreaking issues
+\usepackage{hyperref} % make references into links
+\hypersetup{colorlinks=true, linkcolor=blue} %make them pretty links
+\usepackage[all]{hypcap} %make them link to the right place
 
 \begin{document}
 	\title{E4301 Final Project:\\Spectral Solution to the Klein-Gordon Equation}
@@ -13,13 +15,13 @@
 	\maketitle
 	
 	\begin{abstract}
-		filler text
+		The Klein-Gordon Equation can be used to generalize Maxwell's Equations for massive photons. We present a spectral method to solve the Klein-Gordon Equation. We discuss several issues encountered while creating the simulation and how we overcame these issues. Several sources are modeled such as a point charge, a Gaussian charge distribution, and a moving point charge. We also show the effects of varying the photon mass in our simulation. 
 	\end{abstract}
 	
 	\section{Introduction}
 	
 	
-	The Klein-Gordon Equation appears in many subfields of physics, most notably in particle physics, where it is the relativistic generalization of the Schr\"odinger Wave equation. We wish to study it in a slightly different context, namely as the generalization of Maxwell's Equations for massive photons. We wish to see how the solutions to the Klein-Gordon forumlation deviate from the classical E\&M results.
+	The Klein-Gordon Equation appears in many subfields of physics, most notably in particle physics, where it is the relativistic generalization of the Schr\"odinger Wave equation. We wish to study it in a slightly different context, namely as the generalization of Maxwell's Equations for massive photons. We wish to see how the solutions to the Klein-Gordon formulation deviate from the classical E\&M results.
 	
 	We will use the following set of equations as our (uncoupled) PDE for the E and B fields in a vacuum (which can be derived from the coupled Massive Maxwell Equations, omitted here):
 	\begin{equation}
@@ -58,16 +60,24 @@
 	
 	\begin{equation}\boxed{
 		\phi_k^{n+1} = 2\phi_k^n - \phi_k^{n-1} + c^2h^2(F_k - (k^2+m^2)\phi_k^n)}
+	\label{eqn:functional}
 	\end{equation}
 	
-	This form is implemented in a python script (\verb|kgsimulate.py|) on a truncated spectral space of size $N^3$ (i.e. look only at wavenumbers $2\pi m/N$ for $m \in [0,N-1]$). Note that this scheme implicitly contains periodic boundary conditions. This script outputs the resulting electric field components in k-space as .npy files. A second python script (\verb|plotting.py|) imports these files and applies the Fast Fourier Transform (FFT) to transform the electric field into position space. It also plots the electric field components and total energy distribution ($\vec{E}^2$) in the xy-plane passing through the origin and generates gifs showing the time evolution of these variables. The resulting gifs can be found in their respective simulation folders in our bitbucket repository.
+	This form is implemented in a python script (\texttt{kgsimulate.py}) on a truncated spectral space of size $N^3$ (i.e. look only at wavenumbers $2\pi m/N$ for $m \in [0,N-1]$). Note that this scheme implicitly contains periodic boundary conditions. This script outputs the resulting electric field components in k-space as .npy files. A second python script (\texttt{plotting.py}) imports these files and applies the Fast Fourier Transform (FFT) to transform the electric field into position space. It also plots the electric field components and total energy distribution ($\vec{E}^2$) in the xy-plane passing through the origin and generates gifs showing the time evolution of these variables. The resulting gifs can be found in their respective simulation folders in our bitbucket repository.
 	
 	\section{Simulation Issues}
 	
+	\subsection{Dirac Source}
 	Initially, we ran the simulation with $k=0,1,2\dots$ instead of using $k=2\pi m/N$ for $m \in [0,N-1]$ which is necessary for the discrete Fourier transform. We tried to input a Dirac delta-function as our source with an initial condition of zero everywhere to model a point charge. But then the source $F_k \approx \vec{k}$ which causes the simulation to explode for $k>1$. We then switched to a Gaussian source as we thought a Dirac delta source would be impossible to run with our simulation. We realized our mistake eventually and switched to the correct basis for the discrete Fourier transform and ran many simulations with the Gaussian source. It was only later that we realized the Dirac source would now work which is why most of our tests are with a Gaussian source and not a point charge.
 	%This caused the first step of ou problem to act like $\phi_k^{1} = c^2h^2 F_k \approx c^2h^2k$ and then at the large k values of subsequent steps $\phi_k^{n+1} \approx -c^2h^2k^3\phi_k^n$.
 	
-	Another problem we encountered has to do with initial conditions and the nature of the wave-equation. Our simulations started with the initial condition the $\vec E=0$ everywhere but with a charge density at the origin. This physically represents a charge appearing in a vacuum at $t=0$. Due to the sudden appearance (which obviously violates several conservation laws) a shock wave of radiation is produced. This can be seen in Figure \ref{fig:shockwave}. Since our simulation has periodic boundary conditions, this radiation reflects back and interferes with our steady state solution which can eventually cause the simulation to become unstable. In order to fix this issue, we added a dampening filter which scales the source slowly from 0 to its full strength. We first tried a linear function which worked very well at reducing this radiation wave. Next we implemented a Sigmoid function (also known as a logistic function) which is a function of the form $\frac{L}{1+e^{-k(x-x_0)}}$. This function smoothly limits to $L$ as $x\to\infty$ and $0$ as $x\to-\infty$. This has the benefit of removing the discontinuities in the derivative of the linear function when the source is first turned on and when it reaches full strength. In order to test these different, we examined the L2 residual which should go to 0 as our simulation should approach a steady state. The result is shown in Figure \ref{fig:residual}. The Sigmoid dampening performs slightly better than the linear dampening and both are nearly an order of magnitude better than the undampened case. The scripts used to run these simulations can be found in the directory \verb|steadystate_tests|.
+	\subsection{Scaling}
+	We have two parameters we can modify to change the size of our simulation. Changing the number of $k$ values, $N$, that we solve for will refine our mesh in position space. We can also modify the number of timesteps, $t_{max}$, that we take. Since we solve our ODE at each point in 3-dimensional $k$-space, our problem scales with $N^3$. However, our problem only scales linearly with $T$. Thus it is most important for us to fine-tune the value of $N$. We settled on $N=51$ as it provides sufficient resolution to see features in position space and ran in a reasonable amount of time on our computers. Choosing $t_{max}$ was not as important as most of our simulations quickly went to a steady state and since the scaling is linear we could easily increase without significantly affecting the runtime.
+	
+	\subsection{Radiation Wave}
+	Another problem we encountered has to do with initial conditions and the nature of the wave-equation. Our simulations started with the initial condition the $\vec E=0$ everywhere but with a charge density at the origin. This physically represents a charge appearing in a vacuum at $t=0$. Due to the sudden appearance (which obviously violates several conservation laws) a wave of radiation is produced. This can be seen in Figure \ref{fig:shockwave}. Since our simulation has periodic boundary conditions, this radiation reflects back and interferes with our steady state solution which can eventually cause the simulation to become unstable. 
+	
+	In order to fix this issue, we added a dampening filter which scales the source slowly from 0 to its full strength. We first tried a linear function which worked very well at reducing this radiation wave. Next we implemented a Sigmoid function (also known as a logistic function) which is a function of the form $\frac{L}{1+e^{-k(x-x_0)}}$. This function smoothly limits to $L$ as $x\to\infty$ and $0$ as $x\to-\infty$. This has the benefit of removing the discontinuities in the derivative of the linear function when the source is first turned on and when it reaches full strength. In order to test these different, we examined the L2 residual which should go to 0 as our simulation should approach a steady state. The result is shown in Figure \ref{fig:residual}. The Sigmoid dampening performs slightly better than the linear dampening and both are nearly an order of magnitude better than the undampened case. The scripts used to run these simulations can be found in the directory \texttt{steadystate\_tests}.
 	
 	\begin{figure}
 		\centering
@@ -83,6 +93,7 @@
 		\label{fig:residual}
 	\end{figure} 
 	
+	\subsection{Asymmetry}
 	Even with the dampening, we still encountered some instability in our simulation. Since our source is radially symmetric, we would expect to see the same symmetry in our solution. However, there is some asymmetry, especially in $E_z$. This can be seen in Figure \ref{fig:asymmetry}. We are not exactly sure where this asymmetry comes from. Possibly our source is not perfectly centered when in position space. It also could be an error caused by the FFT.
 	\begin{figure}
 		\centering
@@ -92,21 +103,22 @@
 	\end{figure} 
 
 	
-	Convergence: no analytic problem to compare to for the stable forms, so qualitatively compare the ``tail'' of the energy or electric field.
+	\subsection{Convergence} no analytic problem to compare to for the stable forms, so qualitatively compare the ``tail'' of the energy or electric field.
 	
 	\section{Simulations}
 	
-	mass dependence
+	\subsection{Mass dependence}
+	In our simulation, we can change the value of $m$. The value of $m$ used in each simulation is generally contained in the directory name, for example \texttt{sigmoid\_gaussian\_m10} contains a script using sigmoid dampening with $m=10$. The majority of our simulations were run with $m=1$. We also tested $m=0$ and $m=10$. 
 	
-	interesting charge sources
+	With $m=10$, the solution oscillates in intensity. This is difficult to see in still images but is clearly evident in the gifs, especially in \texttt{gaussian\_m10} which does not use any dampening. Looking back at our function equation, Equation \ref{eqn:functional}, we see that $-m^2c^2h^2$ appears as a coefficient of the previous step $\phi^n_k$. With a large value of $m$, this term dominates and so $\phi^{n+1}_k\propto-\phi^n_k$ which causes the oscillations in our solution.
 	
-	interesting current sources
+	\subsection{Moving charge}
 	
 	\section{Conclusion}
-	Summary of successes in relation to original goal
+	While we are not definitively able to show that our simulation matches exactly with analytic solutions (as these are difficult to find), the forms of our solutions agree with what we would predict. Our simulation is robust enough to simulate charges as well as stationary charge distributions and can run with different values $m$ (within certain limits). 
 	
-	Improvements
-	
-	What we would like to also implement
+	Since we spent a significant portion of our time coding and troubleshooting our simulation, we were not able to test too many interesting sources. Some sources we could have tried to model would be sources with multiple charges such as dipoles, accelerating charges, and current sources. These situations can all be done with varying values of $m$ as well.
+
+	We could also modify our simulation and implement different boundary conditions. The spectral implicitly contains periodic boundary conditions but there are ways to implement other boundary conditions such as absorbing boundary conditions. These different boundary conditions can introduce different problems into the simulation and so implementing can be nontrivial.
 	
 \end{document}
