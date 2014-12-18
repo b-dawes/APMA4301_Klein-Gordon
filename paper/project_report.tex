@@ -103,7 +103,20 @@
 	\end{figure} 
 
 	
-	\subsection{Convergence} no analytic problem to compare to for the stable forms, so qualitatively compare the ``tail'' of the energy or electric field.
+	\subsection{Convergence} We can compare our simulation to the true analytic solution for a point charge:
+	
+	\begin{equation}
+		\Phi_{true} = \frac{qe^{-mr}}{r} \implies E_{true} = -\nabla \Phi_{true} = q\left(\frac{me^{-mr}}{r} + \frac{e^{-mr}}{r^2}\right)
+	\end{equation}
+	
+	This result can be seen in Figure \ref{fig:convergence}. Note that although our solution is qualitatively similar, there are two large problems. Near the dirac source, our solution is not perfectly aligned with the analytic solution. This is due to the fact that on the scale of the analytic solution ($r = 1$) we have poor resolution in our discretization of space. Away from the source, our solution has sinusoidal error. This is due to our approximation of the Dirac delta distribution into a finite (not infinite) Fourier sum. The error is from our high order terms in k-space. Although our Gaussian simulation does not have noticable sinusoidal error (because the Gaussian's shape depends much less on higher order k-space terms), we do not have a analytic solution to compare it to, as solving the Massive Maxwell equations for a Gaussian source is quite difficult (luckily our simulation does it for us numerically!)
+	
+	\begin{figure}
+		\centering
+		\includegraphics[width=4in]{dirac_field_comparison}
+		\caption{Comparison between the true field produced by a Dirac point charge with a massive photon compared to our simulation's result.}
+		\label{fig:convergence}
+	\end{figure} 
 	
 	\section{Simulations}
 	
@@ -113,6 +126,8 @@
 	With $m=10$, the solution oscillates in intensity. This is difficult to see in still images but is clearly evident in the gifs, especially in \texttt{gaussian\_m10} which does not use any dampening. Looking back at our function equation, Equation \ref{eqn:functional}, we see that $-m^2c^2h^2$ appears as a coefficient of the previous step $\phi^n_k$. With a large value of $m$, this term dominates and so $\phi^{n+1}_k\propto-\phi^n_k$ which causes the oscillations in our solution.
 	
 	\subsection{Moving charge}
+	Changing our point charge (in either the Dirac or Gaussian form) from a stationary to moving source was not difficult. The source was modified to move in uniform circular motion to see how well our simulation could handle field strength intensity which moves in time. Luckily, this method seemed to have handled it quite well, and although the charges are in constant motion, even after 250 time steps the simulation remains very stable.
+	
 	
 	\section{Conclusion}
 	While we are not definitively able to show that our simulation matches exactly with analytic solutions (as these are difficult to find), the forms of our solutions agree with what we would predict. Our simulation is robust enough to simulate charges as well as stationary charge distributions and can run with different values $m$ (within certain limits). 
